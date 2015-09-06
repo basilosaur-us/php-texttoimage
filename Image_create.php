@@ -1,40 +1,5 @@
 <?php
 
-$arr = array (
-	'header' => array(
-		'headerString' => 'Dispatch sent ' . date('Y M d a h i T'),
-		'headerFont' => 'fonts/gtw.ttf',
-		'headerFontSize' => 18,
-		'headerFontColor' => '',
-		'headerImage' => '',
-		'headerImageWidth' => '',
-	),
-	'footer' => array(
-		'footerString' => 'This has been a test.',
-		'footerFont' => 'fonts/gtw.ttf',
-		'footerFontSize' => 18,
-		'footerFontColor' => '',
-		'footerImage' => '',
-		'footerImageWidth' => '',
-	),
-	'body' => array(
-		'bodyString' => 'Lorem ipsum dolor sit amet. When in the course of human events, or when it rains it pours. Pores? Mine have blackheads. Lorem ipsum dolor sit amet. When in the course of human events, or when it rains it pours. Pores? Mine have blackheads. Lorem ipsum dolor sit amet. When in the course of human events, or when it rains it pours. Pores? Mine have blackheads. Lorem ipsum dolor sit amet. When in the course of human events, or when it rains it pours. Pores? Mine have blackheads. Lorem ipsum dolor sit amet. When in the course of human events, or when it rains it pours. Pores? Mine have blackheads. Lorem ipsum dolor sit amet. When in the course of human events, or when it rains it pours. Pores? Mine have blackheads. Lorem ipsum dolor sit amet. When in the course of human events, or when it rains it pours. Pores? Mine have blackheads. Lorem ipsum dolor sit amet. When in the course of human events, or when it rains it pours. Pores? Mine have blackheads.',
-		'bodyFont' => 'fonts/gtw.ttf',
-		'bodyFontSize' => 16,
-		'bodyFontColor' => '',
-	),
-	'lineHeight' => 2,
-	'maxWordLength' => 27,
-	'imageWidth' => 700,
-	'imageMaxHeight' => '',
-	'verticalImageMargin' => 20,
-	'horizontalImageMargin' => 28,
-	'backgroundColor' => '#b0000b'
-);
-
-$test = new Image_create($arr);
-$test->image_to_browser();
-
 class Image_create {
 	/***************
 	* STILL TO IMPLEMENT: background images, font colors, max height, background color
