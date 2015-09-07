@@ -2,7 +2,7 @@
 
 class Image_create {
 	/***************
-	* STILL TO IMPLEMENT: background images, font colors, max height, background color
+	* STILL TO IMPLEMENT: background images, max height
 	*	Class takes an array structured like thus:
 	*	array (
 	*		'header' => array(
@@ -40,7 +40,7 @@ class Image_create {
 		'headerString' => '',
 		'headerFont' => '',
 		'headerFontSize' => 18,
-		'headerFontColor' => '',
+		'headerFontColor' => '#b0000b',
 		'headerImage' => '',
 		'headerImageWidth' => '',
 		'headerLineHeight' => '',
@@ -49,7 +49,7 @@ class Image_create {
 		'footerString' => '',
 		'footerFont' => '',
 		'footerFontSize' => 18,
-		'footerFontColor' => '',
+		'footerFontColor' => '#b0000b',
 		'footerImage' => '',
 		'footerImageWidth' => '',
 		'footerLineHeight' => '',
@@ -58,7 +58,7 @@ class Image_create {
 		'bodyString' => '',
 		'bodyFont' => '',
 		'bodyFontSize' => 16,
-		'bodyFontColor' => '',
+		'bodyFontColor' => '#000',
 		'bodyLineHeight' => '',
 	);
 	private $lineHeight = 1.5;
@@ -91,15 +91,19 @@ class Image_create {
 		$this->header['headerLineHeight'] = $this->header['headerFontSize'] * $this->lineHeight;
 		$this->body['bodyLineHeight'] = $this->body['bodyFontSize'] * $this->lineHeight;
 		$this->footer['footerLineHeight'] = $this->footer['footerFontSize'] * $this->lineHeight;
+
 		//converts each string to an array with linebreaks
 		$this->header['headerString'] = $this->wrap_text_to_width($this->header['headerString'], $this->header['headerFont'], $this->header['headerFontSize']);
 		$this->body['bodyString'] = $this->wrap_text_to_width($this->body['bodyString'], $this->body['bodyFont'], $this->body['bodyFontSize']);
 		$this->footer['footerString'] = $this->wrap_text_to_width($this->footer['footerString'], $this->footer['footerFont'], $this->footer['footerFontSize']);
 
+		//converts colors into rgb arrays
+		$this->header['headerFontColor'] = $this->hex2RGB($this->header['headerFontColor']);
+		$this->body['bodyFontColor'] = $this->hex2RGB($this->body['bodyFontColor']);
+		$this->footer['footerFontColor'] = $this->hex2RGB($this->footer['footerFontColor']);
+		$this->backgroundColor = $this->hex2RGB($this->backgroundColor);
+
 		$this->imageHeight = $this->calc_image_height();
-/*		echo $this->header['headerLineHeight'] . '<br><br>';
-		echo $this->body['bodyLineHeight'] . '<br><br>';
-		echo $this->footer['footerLineHeight'] . '<br><br>';*/
 
 		$this->make_image();
 	}
@@ -108,26 +112,28 @@ class Image_create {
 	public function make_image() {
 
 		$this->theImage = imagecreatetruecolor( $this->imageWidth, $this->imageHeight );
-		$black = imagecolorallocate($this->theImage, 0, 0, 0);
-		$white = imagecolorallocate($this->theImage, 255, 255, 255);
-		imagefill($this->theImage, 0, 0, $white);
+		$headerColor = imagecolorallocate($this->theImage, $this->header['headerFontColor']['red'], $this->header['headerFontColor']['green'], $this->header['headerFontColor']['blue']);
+		$bodyColor = imagecolorallocate($this->theImage, $this->body['bodyFontColor']['red'], $this->body['bodyFontColor']['green'], $this->body['bodyFontColor']['blue']);
+		$footerColor = imagecolorallocate($this->theImage, $this->footer['footerFontColor']['red'], $this->footer['footerFontColor']['green'], $this->footer['footerFontColor']['blue']);
+		$backgroundColor = imagecolorallocate($this->theImage, $this->backgroundColor['red'], $this->backgroundColor['green'], $this->backgroundColor['blue']);
+		imagefill($this->theImage, 0, 0, $backgroundColor);
 
 		$lineHeight = $this->verticalImageMargin + $this->header['headerFontSize'] + ( $this->footer['footerFontSize'] / 2 );
 		//echo $lineHeight;
 		foreach ( $this->header['headerString'] as $s ) {
-			imagettftext($this->theImage, $this->header['headerFontSize'], 0, $this->horizontalImageMargin, $lineHeight, $black, $this->header['headerFont'], $s);
+			imagettftext($this->theImage, $this->header['headerFontSize'], 0, $this->horizontalImageMargin, $lineHeight, $headerColor, $this->header['headerFont'], $s);
 			$lineHeight += $this->header['headerLineHeight'];
 		}
 
 		$lineHeight += $this->verticalImageMargin;
 		foreach ( $this->body['bodyString'] as $s ) {
-			imagettftext($this->theImage, $this->body['bodyFontSize'], 0, $this->horizontalImageMargin, $lineHeight, $black, $this->body['bodyFont'], $s);
+			imagettftext($this->theImage, $this->body['bodyFontSize'], 0, $this->horizontalImageMargin, $lineHeight, $bodyColor, $this->body['bodyFont'], $s);
 			$lineHeight += $this->body['bodyLineHeight'];
 		}
 
 		$lineHeight += $this->verticalImageMargin;
 		foreach ( $this->footer['footerString'] as $s ) {
-			imagettftext($this->theImage, $this->footer['footerFontSize'], 0, $this->horizontalImageMargin, $lineHeight, $black, $this->footer['footerFont'], $s);
+			imagettftext($this->theImage, $this->footer['footerFontSize'], 0, $this->horizontalImageMargin, $lineHeight, $footerColor, $this->footer['footerFont'], $s);
 			$lineHeight += $this->footer['footerLineHeight'];
 		}
 
@@ -202,5 +208,28 @@ class Image_create {
 
 		return $stringHeight + $totalMargin;
 	}
+
+	//converts html hex strings to an array with r, g, & b
+	//based on a function provided at php.com by hafees@msn.com
+	//http://php.net/manual/en/function.hexdec.php#99478
+	private function hex2RGB($hexStr, $seperator = ',') {
+    $hexStr = preg_replace("/[^0-9A-Fa-f]/", '', $hexStr); // Gets a proper hex string
+    $rgbArray = array();
+    if (strlen($hexStr) == 6) { //If a proper hex code, convert using bitwise operation. No overhead... faster
+        $colorVal = hexdec($hexStr);
+        $rgbArray['red'] = 0xFF & ($colorVal >> 0x10);
+        $rgbArray['green'] = 0xFF & ($colorVal >> 0x8);
+        $rgbArray['blue'] = 0xFF & $colorVal;
+    } elseif (strlen($hexStr) == 3) { //if shorthand notation, need some string manipulations
+        $rgbArray['red'] = hexdec(str_repeat(substr($hexStr, 0, 1), 2));
+        $rgbArray['green'] = hexdec(str_repeat(substr($hexStr, 1, 1), 2));
+        $rgbArray['blue'] = hexdec(str_repeat(substr($hexStr, 2, 1), 2));
+    } else {
+			$rgbArray['red'] = 000;
+			$rgbArray['green'] = 000;
+			$rgbArray['blue'] = 000;
+    }
+    return $rgbArray; // returns the rgb string or the associative array
+}
 
 }
