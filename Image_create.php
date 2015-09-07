@@ -11,7 +11,6 @@ class Image_create {
 	*			'headerFontSize' => '',
 	*			'headerFontColor' => '',
 	*			'headerImage' => '',
-	*			'headerImageWidth' => '',
 	*		),
 	*		'footer' => array(
 	*			'footerString' => '',
@@ -19,7 +18,6 @@ class Image_create {
 	*			'footerFontSize' => '',
 	*			'footerFontColor' => '',
 	*			'footerImage' => '',
-	*			'footerImageWidth' => '',
 	*		),
 	*		'body' => array(
 	*			'bodyString' => '',
@@ -42,8 +40,11 @@ class Image_create {
 		'headerFontSize' => 18,
 		'headerFontColor' => '#b0000b',
 		'headerImage' => '',
-		'headerImageWidth' => '',
+		'headerImageWidth' => 0,
+		'headerImageHeight' => 0,
 		'headerLineHeight' => '',
+		'headerImageType' => '',
+		'headerTheImage' => '',
 	);
 	private $footer = array(
 		'footerString' => '',
@@ -51,8 +52,11 @@ class Image_create {
 		'footerFontSize' => 18,
 		'footerFontColor' => '#b0000b',
 		'footerImage' => '',
-		'footerImageWidth' => '',
+		'footerImageWidth' => 0,
+		'footerImageHeight' => 0,
 		'footerLineHeight' => '',
+		'footerImageType' => '',
+		'footerTheImage' => '',
 	);
 	private $body = array(
 		'bodyString' => '',
@@ -103,6 +107,15 @@ class Image_create {
 		$this->footer['footerFontColor'] = $this->hex2RGB($this->footer['footerFontColor']);
 		$this->backgroundColor = $this->hex2RGB($this->backgroundColor);
 
+		//gets the dimensions of the header and footer images
+		//gets image type and loads it.  Allows png, gif, or jpeg
+		if ( !empty( $this->header['headerImage'] ) ) {
+			$this->set_bg_image_dimensions_type('header');
+		}
+		if ( !empty( $this->header['headerImage'] ) ) {
+			$this->set_bg_image_dimensions_type('footer');
+		}
+
 		$this->imageHeight = $this->calc_image_height();
 
 		$this->make_image();
@@ -112,10 +125,14 @@ class Image_create {
 	public function make_image() {
 
 		$this->theImage = imagecreatetruecolor( $this->imageWidth, $this->imageHeight );
+
+		//defines colors for the fonts and background
 		$headerColor = imagecolorallocate($this->theImage, $this->header['headerFontColor']['red'], $this->header['headerFontColor']['green'], $this->header['headerFontColor']['blue']);
 		$bodyColor = imagecolorallocate($this->theImage, $this->body['bodyFontColor']['red'], $this->body['bodyFontColor']['green'], $this->body['bodyFontColor']['blue']);
 		$footerColor = imagecolorallocate($this->theImage, $this->footer['footerFontColor']['red'], $this->footer['footerFontColor']['green'], $this->footer['footerFontColor']['blue']);
 		$backgroundColor = imagecolorallocate($this->theImage, $this->backgroundColor['red'], $this->backgroundColor['green'], $this->backgroundColor['blue']);
+
+		//fills the image with its background color
 		imagefill($this->theImage, 0, 0, $backgroundColor);
 
 		$lineHeight = $this->verticalImageMargin + $this->header['headerFontSize'] + ( $this->footer['footerFontSize'] / 2 );
@@ -230,6 +247,29 @@ class Image_create {
 			$rgbArray['blue'] = 000;
     }
     return $rgbArray; // returns the rgb string or the associative array
-}
+	}
+
+	//sets width and height for background images (headerImage, footerImage)
+	private function set_bg_image_dimensions($which) {
+		if ( $which = 'header' ) {
+			$img = $this->header['headerImage'];
+		} else {
+			$img = $this->footer['footerImage'];
+		}
+		//check if file exists
+		if ( file_exists($img) ) {
+			$info = getimagesize($img);
+			if ( $which = 'header' ) {
+				$this->header['headerImageWidth'] = $info[0];
+				$this->header['headerImageHeight'] = $info[1];
+				$this->header['headerImageType'] = $info[2];
+			} else {
+				$this->footer['footerImageWidth'] = $info[0];
+				$this->footer['footerImageHeight'] = $info[1];
+				$this->footer['footerImageType'] = $info[2];
+			}
+		}
+		return false;
+	}
 
 }
