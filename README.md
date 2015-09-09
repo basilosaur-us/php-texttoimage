@@ -14,6 +14,8 @@ This is very much a work in progress.  Right now, it will produce images that ha
 			'headerFontSize' => 18,
 			'headerFontColor' => '#000',
 			'headerImage' => '',
+			'scaleHeaderImage' => false,
+			'headerPadding' => 0, //adds padding between the header and body text
 		),
 		'footer' => array(
 			'footerString' => '', //required
@@ -21,6 +23,8 @@ This is very much a work in progress.  Right now, it will produce images that ha
 			'footerFontSize' => 18,
 			'footerFontColor' => '#000',
 			'footerImage' => '',
+			'scaleFooterImage' => false,
+			'footerPadding' => 0, //adds padding between the body and footer text
 		),
 		'body' => array(
 			'bodyString' => '', //required

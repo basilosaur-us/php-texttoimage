@@ -40,10 +40,12 @@ class Image_create {
 		'headerFontSize' => 18,
 		'headerFontColor' => '#b0000b',
 		'headerImage' => '',
+		'scaleHeaderImage' => false,
+		'headerPadding' => 0,
 		'headerImageWidth' => 0,
 		'headerImageHeight' => 0,
 		'headerLineHeight' => '',
-		'headerImageType' => '',
+		'headerImageType' => 0,
 		'headerTheImage' => '',
 	);
 	private $footer = array(
@@ -52,10 +54,12 @@ class Image_create {
 		'footerFontSize' => 18,
 		'footerFontColor' => '#b0000b',
 		'footerImage' => '',
+		'scaleFooterImage' => false,
+		'footerPadding' => 0,
 		'footerImageWidth' => 0,
 		'footerImageHeight' => 0,
 		'footerLineHeight' => '',
-		'footerImageType' => '',
+		'footerImageType' => 0,
 		'footerTheImage' => '',
 	);
 	private $body = array(
@@ -109,14 +113,13 @@ class Image_create {
 
 		//gets the dimensions of the header and footer images
 		//gets image type and loads it.  Allows png, gif, or jpeg
-		if ( !empty( $this->header['headerImage'] ) ) {
-			$this->set_bg_image_dimensions_type('header');
-		}
-		if ( !empty( $this->header['headerImage'] ) ) {
-			$this->set_bg_image_dimensions_type('footer');
-		}
+		if ( !empty( $this->header['headerImage'] ) ) $this->set_bg_image_info('header');
+		if ( !empty( $this->footer['footerImage'] ) ) $this->set_bg_image_info('footer');
 
 		$this->imageHeight = $this->calc_image_height();
+
+//		echo $this->footer['footerImage'] . ' ' . $this->footer['footerImageWidth']
+//			. ' ' . $this->footer['footerImageHeight'] . ' ' . $this->footer['footerImageType'];
 
 		$this->make_image();
 	}
@@ -135,6 +138,20 @@ class Image_create {
 		//fills the image with its background color
 		imagefill($this->theImage, 0, 0, $backgroundColor);
 
+		//inserts header and footer background images if they exist
+		// only scales the header and footer image to fit the final image if it is
+		// set to do so, and if your PHP version is over 5.5.0
+		if ( !empty( $this->header['headerTheImage'] ) ) {
+			if ( ( PHP_VERSION_ID >= 50500 ) && ( $this->header['scaleHeaderImage'] == true ) )
+				imagescale($this->header['headerTheImage'], $this->imageWidth);
+			imagecopy($this->theImage, $this->header['headerTheImage'], 0, 0, 0, 0, $this->header['headerImageWidth'], $this->header['headerImageHeight']);
+		}
+		if ( !empty( $this->footer['footerTheImage'] ) ) {
+			if ( ( PHP_VERSION_ID >= 50500 ) && ( $this->footer['scaleFooterImage'] == true ) )
+				imagescale($this->footer['footerTheImage'], $this->imageWidth);
+			imagecopy($this->theImage, $this->footer['footerTheImage'], 0, ( $this->imageHeight - $this->footer['footerImageHeight'] ), 0, 0, $this->footer['footerImageWidth'], $this->footer['footerImageHeight']);
+		}
+
 		$lineHeight = $this->verticalImageMargin + $this->header['headerFontSize'] + ( $this->footer['footerFontSize'] / 2 );
 		//echo $lineHeight;
 		foreach ( $this->header['headerString'] as $s ) {
@@ -142,13 +159,13 @@ class Image_create {
 			$lineHeight += $this->header['headerLineHeight'];
 		}
 
-		$lineHeight += $this->verticalImageMargin;
+		$lineHeight += $this->verticalImageMargin + $this->header['headerPadding'];
 		foreach ( $this->body['bodyString'] as $s ) {
 			imagettftext($this->theImage, $this->body['bodyFontSize'], 0, $this->horizontalImageMargin, $lineHeight, $bodyColor, $this->body['bodyFont'], $s);
 			$lineHeight += $this->body['bodyLineHeight'];
 		}
 
-		$lineHeight += $this->verticalImageMargin;
+		$lineHeight += $this->verticalImageMargin + $this->footer['footerPadding'];
 		foreach ( $this->footer['footerString'] as $s ) {
 			imagettftext($this->theImage, $this->footer['footerFontSize'], 0, $this->horizontalImageMargin, $lineHeight, $footerColor, $this->footer['footerFont'], $s);
 			$lineHeight += $this->footer['footerLineHeight'];
@@ -210,6 +227,7 @@ class Image_create {
 	private function calc_image_height() {
 		//calculate the margins
 		$totalMargin = $this->verticalImageMargin * 4;
+		$padding = $this->header['headerPadding'] + $this->footer['footerPadding'];
 		$stringHeight = 0;
 
 		//get the collective height for the header, footer, and body string sections
@@ -223,7 +241,7 @@ class Image_create {
 			$stringHeight += $this->body['bodyLineHeight'];
 		}
 
-		return $stringHeight + $totalMargin;
+		return $stringHeight + $totalMargin + $padding;
 	}
 
 	//converts html hex strings to an array with r, g, & b
@@ -250,23 +268,39 @@ class Image_create {
 	}
 
 	//sets width and height for background images (headerImage, footerImage)
-	private function set_bg_image_dimensions($which) {
-		if ( $which = 'header' ) {
+	private function set_bg_image_info( $which ) {
+		if ( $which == 'header' ) {
 			$img = $this->header['headerImage'];
-		} else {
+		} elseif ( $which == 'footer' ) {
 			$img = $this->footer['footerImage'];
 		}
 		//check if file exists
 		if ( file_exists($img) ) {
 			$info = getimagesize($img);
-			if ( $which = 'header' ) {
+			if ( $which == 'header' ) {
 				$this->header['headerImageWidth'] = $info[0];
 				$this->header['headerImageHeight'] = $info[1];
 				$this->header['headerImageType'] = $info[2];
-			} else {
+				//makes image object
+				if ( $this->header['headerImageType'] == IMAGETYPE_PNG ) {
+					$this->header['headerTheImage'] = imagecreatefrompng($img);
+				} elseif ( $this->header['headerImageType'] == IMAGETYPE_JPEG ) {
+					$this->header['headerTheImage'] = imagecreatefromjpeg($img);
+				} elseif ( $this->header['headerImageType'] == IMAGETYPE_GIF ) {
+					$this->header['headerTheImage'] = imagecreatefromgif($img);
+				}
+			} elseif ( $which == 'footer' ) {
 				$this->footer['footerImageWidth'] = $info[0];
 				$this->footer['footerImageHeight'] = $info[1];
 				$this->footer['footerImageType'] = $info[2];
+				//makes image object
+				if ( $this->footer['footerImageType'] == IMAGETYPE_PNG ) {
+					$this->footer['footerTheImage'] = imagecreatefrompng($img);
+				} elseif ( $this->footer['footerImageType'] == IMAGETYPE_JPEG ) {
+					$this->footer['footerTheImage'] = imagecreatefromjpeg($img);
+				} elseif ( $this->footer['footerImageType'] == IMAGETYPE_GIF ) {
+					$this->footer['footerTheImage'] = imagecreatefromgif($img);
+				}
 			}
 		}
 		return false;
