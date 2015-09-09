@@ -152,11 +152,12 @@ class Image_create {
 			imagecopy($this->theImage, $this->footer['footerTheImage'], 0, ( $this->imageHeight - $this->footer['footerImageHeight'] ), 0, 0, $this->footer['footerImageWidth'], $this->footer['footerImageHeight']);
 		}
 
-		$lineHeight = $this->verticalImageMargin + $this->header['headerFontSize'] + ( $this->footer['footerFontSize'] / 2 );
-		//echo $lineHeight;
-		foreach ( $this->header['headerString'] as $s ) {
-			imagettftext($this->theImage, $this->header['headerFontSize'], 0, $this->horizontalImageMargin, $lineHeight, $headerColor, $this->header['headerFont'], $s);
-			$lineHeight += $this->header['headerLineHeight'];
+		$lineHeight = $this->verticalImageMargin + $this->header['headerFontSize'] + ( $this->footer['footerFontSize'] / 3 );
+		if ( !empty($this->header['headerString'][0] ) ) {
+			foreach ( $this->header['headerString'] as $s ) {
+				imagettftext($this->theImage, $this->header['headerFontSize'], 0, $this->horizontalImageMargin, $lineHeight, $headerColor, $this->header['headerFont'], $s);
+				$lineHeight += $this->header['headerLineHeight'];
+			}
 		}
 
 		$lineHeight += $this->verticalImageMargin + $this->header['headerPadding'];
@@ -166,9 +167,11 @@ class Image_create {
 		}
 
 		$lineHeight += $this->verticalImageMargin + $this->footer['footerPadding'];
-		foreach ( $this->footer['footerString'] as $s ) {
-			imagettftext($this->theImage, $this->footer['footerFontSize'], 0, $this->horizontalImageMargin, $lineHeight, $footerColor, $this->footer['footerFont'], $s);
-			$lineHeight += $this->footer['footerLineHeight'];
+		if ( !empty($this->footer['footerString'][0] ) ) {
+			foreach ( $this->footer['footerString'] as $s ) {
+				imagettftext($this->theImage, $this->footer['footerFontSize'], 0, $this->horizontalImageMargin, $lineHeight, $footerColor, $this->footer['footerFont'], $s);
+				$lineHeight += $this->footer['footerLineHeight'];
+			}
 		}
 
 	}
@@ -231,11 +234,15 @@ class Image_create {
 		$stringHeight = 0;
 
 		//get the collective height for the header, footer, and body string sections
-		foreach ( $this->header['headerString'] as $s ) {
-			$stringHeight += $this->header['headerLineHeight'];
+		if ( !empty($this->header['headerString'][0] ) ) {
+			foreach ( $this->header['headerString'] as $s ) {
+				$stringHeight += $this->header['headerLineHeight'];
+			}
 		}
-		foreach ( $this->footer['footerString'] as $s ) {
-			$stringHeight += $this->footer['footerLineHeight'];
+		if ( !empty($this->footer['footerString'][0] ) ) {
+			foreach ( $this->footer['footerString'] as $s ) {
+				$stringHeight += $this->footer['footerLineHeight'];
+			}
 		}
 		foreach ( $this->body['bodyString'] as $s ) {
 			$stringHeight += $this->body['bodyLineHeight'];

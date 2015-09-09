@@ -9,7 +9,7 @@ This is very much a work in progress.  Right now, it will produce images that ha
 
 	$arr = 	array (
 		'header' => array(
-			'headerString' => '', //required
+			'headerString' => '',
 			'headerFont' => '', //required
 			'headerFontSize' => 18,
 			'headerFontColor' => '#000',
@@ -18,7 +18,7 @@ This is very much a work in progress.  Right now, it will produce images that ha
 			'headerPadding' => 0, //adds padding between the header and body text
 		),
 		'footer' => array(
-			'footerString' => '', //required
+			'footerString' => '',
 			'footerFont' => '', //required
 			'footerFontSize' => 18,
 			'footerFontColor' => '#000',
@@ -41,4 +41,11 @@ This is very much a work in progress.  Right now, it will produce images that ha
 		'backgroundColor' => '#FFF'
 	);
 
-Members with defaults can be left out when you're setting up the class.  With the exception of 'Image,' 'ImageWidth,' and 'imageMaxHeight' entries, members that are blank are required.
+Members with defaults can be left out when you're setting up the class. Required fields are as marked.  Still on my to do list is to make it so that headerFont and footerFont are not required when there is no headerString and/or footerString defined.  But that's next, not now.
+
+###Here is how to instantiate the class:
+	$img = Image_create($arr); //where $arr is the array above;
+
+###To use the class, try:
+	$img->image_to_browser(); //to output directly to the browser as a PNG
+	$img->image_to_file( $pathToImage ); //to export the image to a file.
