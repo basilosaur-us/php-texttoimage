@@ -8,37 +8,37 @@ This is very much a work in progress.  Right now, it will produce images that ha
 
 	$arr = 	array (
 		'header' => array(
-			'headerString' => '',
-			'headerFont' => '', //required
-			'headerFontSize' => 18,
-			'headerFontColor' => '#000',
-			'headerImage' => '',
-			'scaleHeaderImage' => false,
-			'headerPadding' => 0, //adds padding between the header and body text
+			'string' => '',
+			'font' => '', //required
+			'fontSize' => 18,
+			'fontColor' => '#b0000b',
+			'bgImage' => '',
+			'scalebgImage' => false, //scaling only works in PHP 5.5 and above
+			'padding' => 0, //padding between the header and body
 		),
 		'footer' => array(
-			'footerString' => '',
-			'footerFont' => '', //required
-			'footerFontSize' => 18,
-			'footerFontColor' => '#000',
-			'footerImage' => '',
-			'scaleFooterImage' => false,
-			'footerPadding' => 0, //adds padding between the body and footer text
+			'string' => '',
+			'font' => '', //required
+			'fontSize' => 18,
+			'fontColor' => '#b0000b',
+			'bgImage' => '',
+			'scalebgImage' => false, //scaling only works in PHP 5.5 and above
+			'padding' => 0, //padding between the body and footer
 		),
 		'body' => array(
-			'bodyString' => '', //required
-			'bodyFont' => '', //required
-			'bodyFontSize' => 16,
-			'bodyFontColor' => '#000',
+			'string' => '', //required
+			'font' => '', //required
+			'fontSize' => 16,
+			'fontColor' => '#000',
 		),
 		'lineHeight' => 1.5,
-		'maxWordLength' => 27,
 		'imageWidth' => 700,
 		'imageMaxHeight' => '',
 		'verticalImageMargin' => 10,
 		'horizontalImageMargin' => 10,
-		'backgroundColor' => '#FFF'
+		'backgroundColor' => '#fff'
 	);
+
 
 Members with defaults can be left out when you're setting up the class. Required fields are as marked.  Still on my to do list is to make it so that headerFont and footerFont are not required when there is no headerString and/or footerString defined.  But that's next, not now.
 

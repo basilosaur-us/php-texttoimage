@@ -6,27 +6,26 @@ class Image_create {
 	*	Class takes an array structured like thus:
 	*	array (
 	*		'header' => array(
-	*			'headerString' => '',
-	*			'headerFont' => '',
-	*			'headerFontSize' => '',
-	*			'headerFontColor' => '',
-	*			'headerImage' => '',
+	*			'string' => '',
+	*			'font' => '',
+	*			'fontSize' => '',
+	*			'fontColor' => '',
+	*			'bgImage' => '',
 	*		),
 	*		'footer' => array(
-	*			'footerString' => '',
-	*			'footerFont' => '',
-	*			'footerFontSize' => '',
-	*			'footerFontColor' => '',
-	*			'footerImage' => '',
+	*			'string' => '',
+	*			'font' => '',
+	*			'fontSize' => '',
+	*			'fontColor' => '',
+	*			'bgImage' => '',
 	*		),
 	*		'body' => array(
-	*			'bodyString' => '',
-	*			'bodyFont' => '',
-	*			'bodyFontSize' => '',
-	*			'bodyFontColor' => '',
+	*			'string' => '',
+	*			'font' => '',
+	*			'fontSize' => '',
+	*			'fontColor' => '',
 	*		),
 	*		'lineHeight' => '',
-	*		'maxWordLength' => '',
 	*		'imageWidth' => '',
 	*		'imageMaxHeight' => '',
 	*		'verticalImageMargin' => '',
@@ -35,42 +34,41 @@ class Image_create {
 	*	);
 	*/
 	private $header = array(
-		'headerString' => '',
-		'headerFont' => '',
-		'headerFontSize' => 18,
-		'headerFontColor' => '#b0000b',
-		'headerImage' => '',
-		'scaleHeaderImage' => false,
-		'headerPadding' => 0,
-		'headerImageWidth' => 0,
-		'headerImageHeight' => 0,
-		'headerLineHeight' => '',
-		'headerImageType' => 0,
-		'headerTheImage' => '',
+		'string' => '',
+		'font' => '',
+		'fontSize' => 18,
+		'fontColor' => '#b0000b',
+		'bgImage' => '',
+		'scalebgImage' => false,
+		'padding' => 0,
+		'bgImageWidth' => 0,
+		'bgImageHeight' => 0,
+		'lineHeight' => '',
+		'bgImageType' => 0,
+		'theImage' => '',
 	);
 	private $footer = array(
-		'footerString' => '',
-		'footerFont' => '',
-		'footerFontSize' => 18,
-		'footerFontColor' => '#b0000b',
-		'footerImage' => '',
-		'scaleFooterImage' => false,
-		'footerPadding' => 0,
-		'footerImageWidth' => 0,
-		'footerImageHeight' => 0,
-		'footerLineHeight' => '',
-		'footerImageType' => 0,
-		'footerTheImage' => '',
+		'string' => '',
+		'font' => '',
+		'fontSize' => 18,
+		'fontColor' => '#b0000b',
+		'bgImage' => '',
+		'scalebgImage' => false,
+		'padding' => 0,
+		'bgImageWidth' => 0,
+		'bgImageHeight' => 0,
+		'lineHeight' => '',
+		'bgImageType' => 0,
+		'theImage' => '',
 	);
 	private $body = array(
-		'bodyString' => '',
-		'bodyFont' => '',
-		'bodyFontSize' => 16,
-		'bodyFontColor' => '#000',
-		'bodyLineHeight' => '',
+		'string' => '',
+		'font' => '',
+		'fontSize' => 16,
+		'fontColor' => '#000',
+		'lineHeight' => '',
 	);
 	private $lineHeight = 1.5;
-	private $maxWordLength = 27;
 	private $imageWidth = 700;
 	private $imageMaxHeight = '';
 	private $verticalImageMargin = 10;
@@ -79,12 +77,13 @@ class Image_create {
 
 	private $imageHeight;
 	private $theImage;
+	private $maxWordLength;
 
 	public function __construct($arr) {
 		//merges $arr parameters into the default values; WARNING: CLASS DOES NOT
 		//RUN WITHOUT PROVIDING THE REMAINDER OF THE VALUES
 		if ( $arr['lineHeight'] != '' ) $this->lineHeight = $arr['lineHeight'];
-		if ( $arr['maxWordLength'] != '' ) $this->maxWordLength = $arr['maxWordLength'];
+		//if ( $arr['maxWordLength'] != '' ) $this->maxWordLength = $arr['maxWordLength'];
 		if ( $arr['imageWidth'] != '' ) $this->imageWidth = $arr['imageWidth'];
 		if ( $arr['imageMaxHeight'] != '' ) $this->imageMaxHeight = $arr['imageMaxHeight'];
 		if ( $arr['verticalImageMargin'] != '' ) $this->verticalImageMargin = $arr['verticalImageMargin'];
@@ -96,30 +95,33 @@ class Image_create {
 		$this->body = array_merge( $this->body, $arr['body'] );
 
 		//Sets lineheight in pixels for each section of the image
-		$this->header['headerLineHeight'] = $this->header['headerFontSize'] * $this->lineHeight;
-		$this->body['bodyLineHeight'] = $this->body['bodyFontSize'] * $this->lineHeight;
-		$this->footer['footerLineHeight'] = $this->footer['footerFontSize'] * $this->lineHeight;
+		$this->header['lineHeight'] = $this->header['fontSize'] * $this->lineHeight;
+		$this->body['lineHeight'] = $this->body['fontSize'] * $this->lineHeight;
+		$this->footer['lineHeight'] = $this->footer['fontSize'] * $this->lineHeight;
+
+		//sets max word length
+		$this->maxWordLength = $this->calc_max_word_length($this->body['font'], $this->body['fontSize']);
 
 		//converts each string to an array with linebreaks
-		$this->header['headerString'] = $this->wrap_text_to_width($this->header['headerString'], $this->header['headerFont'], $this->header['headerFontSize']);
-		$this->body['bodyString'] = $this->wrap_text_to_width($this->body['bodyString'], $this->body['bodyFont'], $this->body['bodyFontSize']);
-		$this->footer['footerString'] = $this->wrap_text_to_width($this->footer['footerString'], $this->footer['footerFont'], $this->footer['footerFontSize']);
+		$this->header['string'] = $this->wrap_text_to_width($this->header['string'], $this->header['font'], $this->header['fontSize']);
+		$this->body['string'] = $this->wrap_text_to_width($this->body['string'], $this->body['font'], $this->body['fontSize']);
+		$this->footer['string'] = $this->wrap_text_to_width($this->footer['string'], $this->footer['font'], $this->footer['fontSize']);
 
 		//converts colors into rgb arrays
-		$this->header['headerFontColor'] = $this->hex2RGB($this->header['headerFontColor']);
-		$this->body['bodyFontColor'] = $this->hex2RGB($this->body['bodyFontColor']);
-		$this->footer['footerFontColor'] = $this->hex2RGB($this->footer['footerFontColor']);
+		$this->header['fontColor'] = $this->hex2RGB($this->header['fontColor']);
+		$this->body['fontColor'] = $this->hex2RGB($this->body['fontColor']);
+		$this->footer['fontColor'] = $this->hex2RGB($this->footer['fontColor']);
 		$this->backgroundColor = $this->hex2RGB($this->backgroundColor);
 
 		//gets the dimensions of the header and footer images
 		//gets image type and loads it.  Allows png, gif, or jpeg
-		if ( !empty( $this->header['headerImage'] ) ) $this->set_bg_image_info('header');
-		if ( !empty( $this->footer['footerImage'] ) ) $this->set_bg_image_info('footer');
+		if ( !empty( $this->header['bgImage'] ) ) $this->set_bg_image_info('header');
+		if ( !empty( $this->footer['bgImage'] ) ) $this->set_bg_image_info('footer');
 
 		$this->imageHeight = $this->calc_image_height();
 
-//		echo $this->footer['footerImage'] . ' ' . $this->footer['footerImageWidth']
-//			. ' ' . $this->footer['footerImageHeight'] . ' ' . $this->footer['footerImageType'];
+//		echo $this->footer['bgImage'] . ' ' . $this->footer['bgImageWidth']
+//			. ' ' . $this->footer['bgImageHeight'] . ' ' . $this->footer['bgImageType'];
 
 		$this->make_image();
 	}
@@ -130,9 +132,9 @@ class Image_create {
 		$this->theImage = imagecreatetruecolor( $this->imageWidth, $this->imageHeight );
 
 		//defines colors for the fonts and background
-		$headerColor = imagecolorallocate($this->theImage, $this->header['headerFontColor']['red'], $this->header['headerFontColor']['green'], $this->header['headerFontColor']['blue']);
-		$bodyColor = imagecolorallocate($this->theImage, $this->body['bodyFontColor']['red'], $this->body['bodyFontColor']['green'], $this->body['bodyFontColor']['blue']);
-		$footerColor = imagecolorallocate($this->theImage, $this->footer['footerFontColor']['red'], $this->footer['footerFontColor']['green'], $this->footer['footerFontColor']['blue']);
+		$headerColor = imagecolorallocate($this->theImage, $this->header['fontColor']['red'], $this->header['fontColor']['green'], $this->header['fontColor']['blue']);
+		$bodyColor = imagecolorallocate($this->theImage, $this->body['fontColor']['red'], $this->body['fontColor']['green'], $this->body['fontColor']['blue']);
+		$footerColor = imagecolorallocate($this->theImage, $this->footer['fontColor']['red'], $this->footer['fontColor']['green'], $this->footer['fontColor']['blue']);
 		$backgroundColor = imagecolorallocate($this->theImage, $this->backgroundColor['red'], $this->backgroundColor['green'], $this->backgroundColor['blue']);
 
 		//fills the image with its background color
@@ -141,36 +143,36 @@ class Image_create {
 		//inserts header and footer background images if they exist
 		// only scales the header and footer image to fit the final image if it is
 		// set to do so, and if your PHP version is over 5.5.0
-		if ( !empty( $this->header['headerTheImage'] ) ) {
-			if ( ( PHP_VERSION_ID >= 50500 ) && ( $this->header['scaleHeaderImage'] == true ) )
-				imagescale($this->header['headerTheImage'], $this->imageWidth);
-			imagecopy($this->theImage, $this->header['headerTheImage'], 0, 0, 0, 0, $this->header['headerImageWidth'], $this->header['headerImageHeight']);
+		if ( !empty( $this->header['theImage'] ) ) {
+			if ( ( PHP_VERSION_ID >= 50500 ) && ( $this->header['scalebgImage'] == true ) )
+				imagescale($this->header['theImage'], $this->imageWidth);
+			imagecopy($this->theImage, $this->header['theImage'], 0, 0, 0, 0, $this->header['bgImageWidth'], $this->header['bgImageHeight']);
 		}
-		if ( !empty( $this->footer['footerTheImage'] ) ) {
-			if ( ( PHP_VERSION_ID >= 50500 ) && ( $this->footer['scaleFooterImage'] == true ) )
-				imagescale($this->footer['footerTheImage'], $this->imageWidth);
-			imagecopy($this->theImage, $this->footer['footerTheImage'], 0, ( $this->imageHeight - $this->footer['footerImageHeight'] ), 0, 0, $this->footer['footerImageWidth'], $this->footer['footerImageHeight']);
+		if ( !empty( $this->footer['theImage'] ) ) {
+			if ( ( PHP_VERSION_ID >= 50500 ) && ( $this->footer['scalebgImage'] == true ) )
+				imagescale($this->footer['theImage'], $this->imageWidth);
+			imagecopy($this->theImage, $this->footer['theImage'], 0, ( $this->imageHeight - $this->footer['bgImageHeight'] ), 0, 0, $this->footer['bgImageWidth'], $this->footer['bgImageHeight']);
 		}
 
-		$lineHeight = $this->verticalImageMargin + $this->header['headerFontSize'] + ( $this->footer['footerFontSize'] / 3 );
-		if ( !empty($this->header['headerString'][0] ) ) {
-			foreach ( $this->header['headerString'] as $s ) {
-				imagettftext($this->theImage, $this->header['headerFontSize'], 0, $this->horizontalImageMargin, $lineHeight, $headerColor, $this->header['headerFont'], $s);
-				$lineHeight += $this->header['headerLineHeight'];
+		$lineHeight = $this->verticalImageMargin + $this->header['fontSize'] + ( $this->footer['fontSize'] / 3 );
+		if ( !empty($this->header['string'][0] ) ) {
+			foreach ( $this->header['string'] as $s ) {
+				imagettftext($this->theImage, $this->header['fontSize'], 0, $this->horizontalImageMargin, $lineHeight, $headerColor, $this->header['font'], $s);
+				$lineHeight += $this->header['lineHeight'];
 			}
 		}
 
-		$lineHeight += $this->verticalImageMargin + $this->header['headerPadding'];
-		foreach ( $this->body['bodyString'] as $s ) {
-			imagettftext($this->theImage, $this->body['bodyFontSize'], 0, $this->horizontalImageMargin, $lineHeight, $bodyColor, $this->body['bodyFont'], $s);
-			$lineHeight += $this->body['bodyLineHeight'];
+		$lineHeight += $this->verticalImageMargin + $this->header['padding'];
+		foreach ( $this->body['string'] as $s ) {
+			imagettftext($this->theImage, $this->body['fontSize'], 0, $this->horizontalImageMargin, $lineHeight, $bodyColor, $this->body['font'], $s);
+			$lineHeight += $this->body['lineHeight'];
 		}
 
-		$lineHeight += $this->verticalImageMargin + $this->footer['footerPadding'];
-		if ( !empty($this->footer['footerString'][0] ) ) {
-			foreach ( $this->footer['footerString'] as $s ) {
-				imagettftext($this->theImage, $this->footer['footerFontSize'], 0, $this->horizontalImageMargin, $lineHeight, $footerColor, $this->footer['footerFont'], $s);
-				$lineHeight += $this->footer['footerLineHeight'];
+		$lineHeight += $this->verticalImageMargin + $this->footer['padding'];
+		if ( !empty($this->footer['string'][0] ) ) {
+			foreach ( $this->footer['string'] as $s ) {
+				imagettftext($this->theImage, $this->footer['fontSize'], 0, $this->horizontalImageMargin, $lineHeight, $footerColor, $this->footer['font'], $s);
+				$lineHeight += $this->footer['lineHeight'];
 			}
 		}
 
@@ -226,26 +228,42 @@ class Image_create {
 		return $finalString; // returns array with the string broken into appropriate lengths
 	}
 
+	//given font size and font, calculates max length of a word in the image
+	private function calc_max_word_length($font, $fontSize, $sizerChar = 'T') {
+		$maxWidth = $this->imageWidth - ( $this->horizontalImageMargin * 2 );
+		$i = false; //sets to true when we reach max line length
+		$s = ''; //adds a character per loop until reaches max line length
+		while ( $i == false ) {
+			$bb = imagettfbbox( $fontSize, 0, $font, $s );
+			if ( $bb[2] - $bb[0] < $maxWidth ) {
+				$s .= $sizerChar;
+			} else {
+				$i = true;
+			}
+		}
+		return strlen($s) - 1;
+	}
+
 	//calculates the height that the image needs to be
 	private function calc_image_height() {
 		//calculate the margins
 		$totalMargin = $this->verticalImageMargin * 4;
-		$padding = $this->header['headerPadding'] + $this->footer['footerPadding'];
+		$padding = $this->header['padding'] + $this->footer['padding'];
 		$stringHeight = 0;
 
 		//get the collective height for the header, footer, and body string sections
-		if ( !empty($this->header['headerString'][0] ) ) {
-			foreach ( $this->header['headerString'] as $s ) {
-				$stringHeight += $this->header['headerLineHeight'];
+		if ( !empty($this->header['string'][0] ) ) {
+			foreach ( $this->header['string'] as $s ) {
+				$stringHeight += $this->header['lineHeight'];
 			}
 		}
-		if ( !empty($this->footer['footerString'][0] ) ) {
-			foreach ( $this->footer['footerString'] as $s ) {
-				$stringHeight += $this->footer['footerLineHeight'];
+		if ( !empty($this->footer['string'][0] ) ) {
+			foreach ( $this->footer['string'] as $s ) {
+				$stringHeight += $this->footer['lineHeight'];
 			}
 		}
-		foreach ( $this->body['bodyString'] as $s ) {
-			$stringHeight += $this->body['bodyLineHeight'];
+		foreach ( $this->body['string'] as $s ) {
+			$stringHeight += $this->body['lineHeight'];
 		}
 
 		return $stringHeight + $totalMargin + $padding;
@@ -274,39 +292,39 @@ class Image_create {
     return $rgbArray; // returns the rgb string or the associative array
 	}
 
-	//sets width and height for background images (headerImage, footerImage)
+	//sets width and height for background images (bgImage, bgImage)
 	private function set_bg_image_info( $which ) {
 		if ( $which == 'header' ) {
-			$img = $this->header['headerImage'];
+			$img = $this->header['bgImage'];
 		} elseif ( $which == 'footer' ) {
-			$img = $this->footer['footerImage'];
+			$img = $this->footer['bgImage'];
 		}
 		//check if file exists
 		if ( file_exists($img) ) {
 			$info = getimagesize($img);
 			if ( $which == 'header' ) {
-				$this->header['headerImageWidth'] = $info[0];
-				$this->header['headerImageHeight'] = $info[1];
-				$this->header['headerImageType'] = $info[2];
+				$this->header['bgImageWidth'] = $info[0];
+				$this->header['bgImageHeight'] = $info[1];
+				$this->header['bgImageType'] = $info[2];
 				//makes image object
-				if ( $this->header['headerImageType'] == IMAGETYPE_PNG ) {
-					$this->header['headerTheImage'] = imagecreatefrompng($img);
-				} elseif ( $this->header['headerImageType'] == IMAGETYPE_JPEG ) {
-					$this->header['headerTheImage'] = imagecreatefromjpeg($img);
-				} elseif ( $this->header['headerImageType'] == IMAGETYPE_GIF ) {
-					$this->header['headerTheImage'] = imagecreatefromgif($img);
+				if ( $this->header['bgImageType'] == IMAGETYPE_PNG ) {
+					$this->header['theImage'] = imagecreatefrompng($img);
+				} elseif ( $this->header['bgImageType'] == IMAGETYPE_JPEG ) {
+					$this->header['theImage'] = imagecreatefromjpeg($img);
+				} elseif ( $this->header['bgImageType'] == IMAGETYPE_GIF ) {
+					$this->header['theImage'] = imagecreatefromgif($img);
 				}
 			} elseif ( $which == 'footer' ) {
-				$this->footer['footerImageWidth'] = $info[0];
-				$this->footer['footerImageHeight'] = $info[1];
-				$this->footer['footerImageType'] = $info[2];
+				$this->footer['bgImageWidth'] = $info[0];
+				$this->footer['bgImageHeight'] = $info[1];
+				$this->footer['bgImageType'] = $info[2];
 				//makes image object
-				if ( $this->footer['footerImageType'] == IMAGETYPE_PNG ) {
-					$this->footer['footerTheImage'] = imagecreatefrompng($img);
-				} elseif ( $this->footer['footerImageType'] == IMAGETYPE_JPEG ) {
-					$this->footer['footerTheImage'] = imagecreatefromjpeg($img);
-				} elseif ( $this->footer['footerImageType'] == IMAGETYPE_GIF ) {
-					$this->footer['footerTheImage'] = imagecreatefromgif($img);
+				if ( $this->footer['bgImageType'] == IMAGETYPE_PNG ) {
+					$this->footer['theImage'] = imagecreatefrompng($img);
+				} elseif ( $this->footer['bgImageType'] == IMAGETYPE_JPEG ) {
+					$this->footer['theImage'] = imagecreatefromjpeg($img);
+				} elseif ( $this->footer['bgImageType'] == IMAGETYPE_GIF ) {
+					$this->footer['theImage'] = imagecreatefromgif($img);
 				}
 			}
 		}
