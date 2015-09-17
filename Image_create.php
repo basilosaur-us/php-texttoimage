@@ -196,7 +196,9 @@ class Image_create {
 		$maxWidth = $this->imageWidth - ( $this->horizontalImageMargin * 2 );
 
 		//makes sure that hyphens wrap
-		$string = str_replace( '-', '- ', $string );
+		$string = str_replace( PHP_EOL, '\r', $string );
+		$string = str_replace( array('-', '\r', '\n', '\r\n'),
+			array('- ', '\r ', '\n ', '\r\n '), $string );
 
 		//adds spaces to words longer than the max characters defined by the class
 		$stringArray = explode(' ', $string);
@@ -208,18 +210,22 @@ class Image_create {
 
 		//takes each word in the string, now processed, and puts it in the final word array
 		$stringArray = explode(' ', $string);
-		$finalString[] = '';
+		$finalString[0] = '';
 		$i = 0;
 		//takes each word and makes sure it fits within the bbox, and if it doesn't, creates a new line
 		foreach( $stringArray as $s ) {
 			$bb = imagettfbbox( $fontSize, 0, $font, $finalString[$i] );
-			$bbs = imagettfbbox( $fontSize, 0, $font, $s . ' ' );
+			$bbs = imagettfbbox( $fontSize, 0, $font, str_replace( array('\r\n', '\r', '\n'), '', $s ) . ' ' );
 			if ( $bb[2] + $bbs[2] < $maxWidth ) {
-				$finalString[$i] .= $s . ' ';
+				$finalString[$i] .= str_replace( array('\r\n', '\r', '\n'), '', $s ) . ' ';
 			} else {
 				$finalString[$i] = trim( str_replace( '- ', '-', $finalString[$i] ) );
 				$i++;
-				$finalString[] .= $s . ' ';
+				$finalString[] .= str_replace( array('\r\n', '\r', '\n'), '', $s ) . ' ';
+			}
+			if ( ( substr($s, -2) == '\r') || ( substr($s, -2) == '\n') ) {
+				$i++;
+				$finalString[$i] = '';
 			}
 		}
 		//tidies the last line of the text
