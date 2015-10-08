@@ -2,8 +2,7 @@
 
 class Image_create {
 	/***************
-	* STILL TO IMPLEMENT: background images, max height
-	*	Class takes an array structured like thus:
+	*	Class takes an array structured like this:
 	*	array (
 	*		'header' => array(
 	*			'string' => '',
@@ -83,7 +82,6 @@ class Image_create {
 		//merges $arr parameters into the default values; WARNING: CLASS DOES NOT
 		//RUN WITHOUT PROVIDING THE REMAINDER OF THE VALUES
 		if ( $arr['lineHeight'] != '' ) $this->lineHeight = $arr['lineHeight'];
-		//if ( $arr['maxWordLength'] != '' ) $this->maxWordLength = $arr['maxWordLength'];
 		if ( $arr['imageWidth'] != '' ) $this->imageWidth = $arr['imageWidth'];
 		if ( $arr['imageMaxHeight'] != '' ) $this->imageMaxHeight = $arr['imageMaxHeight'];
 		if ( $arr['verticalImageMargin'] != '' ) $this->verticalImageMargin = $arr['verticalImageMargin'];
@@ -119,9 +117,6 @@ class Image_create {
 		if ( !empty( $this->footer['bgImage'] ) ) $this->set_bg_image_info('footer');
 
 		$this->imageHeight = $this->calc_image_height();
-
-//		echo $this->footer['bgImage'] . ' ' . $this->footer['bgImageWidth']
-//			. ' ' . $this->footer['bgImageHeight'] . ' ' . $this->footer['bgImageType'];
 
 		$this->make_image();
 	}
